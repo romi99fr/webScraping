@@ -1,42 +1,65 @@
+import time
 import requests
 from bs4 import BeautifulSoup
 
 # Obtener el contenido HTML de la página
-brand_lst_link = "https://www.sephora.com/shop/skincare"
+brand_lst_link = "https://www.sephora.com/shop/skincare?currentPage={}"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
 }
-response = requests.get(brand_lst_link, headers=headers)
-html_content = response.content
 
-# Crear el objeto BeautifulSoup
-soup = BeautifulSoup(html_content, 'html.parser')
+product_data = []
 
-product_containers = soup.find_all('a', class_='css-klx76')
+# Número total de páginas
+total_pages = 400
+i = 1
+for page in range(1, total_pages + 1):
+    print(page)
+    # Construir la URL de la página actual
+    page_url = brand_lst_link.format(page)
 
-# Iterate over each product container
-for container in product_containers:
-    brand = container.find('span', class_="css-12z2u5 eanm77i0").text
-    name = container.find('span', class_="ProductTile-name css-h8cc3p eanm77i0").text
-    cost = container.find('b', class_="css-1f35s9q").text
-    voting_rate = container.find('div', class_="css-1xk97ib").text
+    response = requests.get(page_url, headers=headers)
+    html_content = response.content
 
-    rating_element = container.find('span', class_='css-mu0xdx')
-    rating = rating_element.get('aria-label').split()[0] if rating_element else None
+    # Crear el objeto BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
+  
+    product_containers = soup.find_all('a', class_='css-klx76')
+      
+    # Iterate over each product container
+    for tile in product_containers:
+        product_info = {}
+        if tile.find("span", class_="ProductTile-name"):
+            product_name = tile.find("span", class_="ProductTile-name").text.strip()
+            if product_name:
+                product_info["name"] = product_name
 
-    # Print or save the extracted data
-    print("Brand: ", brand)
-    print("Product: ", name)
-    print("Cost: ", cost)
-    print("Rate: ", rating)
-    print("Number of people who rate the product: ", voting_rate)
-    print("---------------")
+        if tile.find("span", class_="css-12z2u5"):
+            brand = tile.find("span", class_="css-12z2u5").text.strip()
+            if brand:
+                product_info["brand"] = brand
 
-    # Save the data to a text file
-    with open('product_data.txt', 'a') as file:
-        file.write("Brand: " + brand + "\n")
-        file.write("Product: " + name + "\n")
-        file.write("Cost: " + cost + "\n")
-        file.write("Rate: " + rating + "\n")
-        file.write("Number of people who rate the product: " + voting_rate + "\n")
-        file.write("---------------------\n")
+        rating_element = tile.find("span", class_="css-mu0xdx")
+        if rating_element:
+            rating = rating_element["aria-label"].split()[0]  # Extract the rating value
+            if rating:
+                product_info["rating"] = rating
+
+        if tile.find("span", class_="css-qbbayi"):
+            review_count = tile.find("span", class_="css-qbbayi").text.strip()
+            if review_count:
+                product_info["review_count"] = review_count
+
+        if tile.find("b", class_="css-1f35s9q"):
+            price = tile.find("b", class_="css-1f35s9q").text.strip()
+            if price:
+                product_info["price"] = price
+        
+        if product_info not in product_data:
+            product_data.append(product_info)
+
+            # Save the data to a text file
+            with open('skincare_data.txt', 'a') as file:
+                file.write(str(product_info) + '\n')
+           
+time.sleep(1)
