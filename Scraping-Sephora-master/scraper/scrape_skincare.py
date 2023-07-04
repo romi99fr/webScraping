@@ -1,48 +1,42 @@
 import requests
-import os
-import re
+from bs4 import BeautifulSoup
 
-# Get Response of "brandlist" Website from Sephora
-makeup_lst_link = "https://www.sephora.com/shop/skincare"
+# Obtener el contenido HTML de la página
+brand_lst_link = "https://www.sephora.com/shop/skincare"
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
 }
-response = requests.get(makeup_lst_link, headers=headers)
-print(response.content)
+response = requests.get(brand_lst_link, headers=headers)
+html_content = response.content
 
-# Extract makeup names and links using regular expressions
-skincare_links = re.findall(r'"titleText":"([^"]+)"', response.text)
-skincare_names = [makeup.replace("\\u0026", "&") for makeup in skincare_links]
+# Crear el objeto BeautifulSoup
+soup = BeautifulSoup(html_content, 'html.parser')
 
-# Check if brand is already in the file
-brand_name_file_path = os.path.join('data', 'brand_names.txt')
-existing_skincare_names = []
-if os.path.exists(brand_name_file_path):
-    with open(brand_name_file_path, 'r') as f:
-        existing_skincare_names = f.read().splitlines()
+product_containers = soup.find_all('a', class_='css-klx76')
 
-# Filter makeup names and links based on brand existence
-filtered_skincare_names = []
-filtered_skincare_links = []
-for name, link in zip(skincare_names, skincare_links):
-    if name in existing_skincare_names:
-        filtered_skincare_names.append(name)
-        filtered_skincare_links.append(f"https://www.sephora.com/shop/skincare/{link}")
-# Create the 'data' directory if it doesn't exist
-if not os.path.exists('data'):
-    os.makedirs('data')
+# Iterate over each product container
+for container in product_containers:
+    brand = container.find('span', class_="css-12z2u5 eanm77i0").text
+    name = container.find('span', class_="ProductTile-name css-h8cc3p eanm77i0").text
+    cost = container.find('b', class_="css-1f35s9q").text
+    voting_rate = container.find('div', class_="css-1xk97ib").text
 
-# Write brand links into a file:
-file_path = os.path.join('data', 'skincare_names.txt')
-with open(file_path, 'w') as f:
-    for item in filtered_skincare_names:
-        f.write(f"{item}\n")
+    rating_element = container.find('span', class_='css-mu0xdx')
+    rating = rating_element.get('aria-label').split()[0] if rating_element else None
 
-# Write makeup links into a file:
-file_path = os.path.join('data', 'skincare_links.txt')
-with open(file_path, 'w') as f:
-    for item in filtered_skincare_links:
-        f.write(f"{item}\n")
+    # Print or save the extracted data
+    print("Brand: ", brand)
+    print("Product: ", name)
+    print("Cost: ", cost)
+    print("Rate: ", rating)
+    print("Number of people who rate the product: ", voting_rate)
+    print("---------------")
 
-# Indicate scraping completion
-print(f'Got All Skicare Links! There are {len(skincare_names)} sikcares products in total.')
+    # Save the data to a text file
+    with open('product_data.txt', 'a') as file:
+        file.write("Brand: " + brand + "\n")
+        file.write("Product: " + name + "\n")
+        file.write("Cost: " + cost + "\n")
+        file.write("Rate: " + rating + "\n")
+        file.write("Number of people who rate the product: " + voting_rate + "\n")
+        file.write("---------------------\n")
