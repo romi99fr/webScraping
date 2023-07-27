@@ -3,7 +3,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import json
 from selenium.webdriver.chrome.options import Options
-import spacy
 import re
 
 # Configurar Selenium y abrir el navegador
@@ -13,6 +12,19 @@ chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64
 driver = webdriver.Chrome(options=chrome_options)
 
 all_product_data = []
+
+distritos_barcelona = {
+    "Ciutat Vella": 1,
+    "Eixample": 2,
+    "Sants-Montjuïc": 3,
+    "Les Corts": 4,
+    "Sarrià-Sant Gervasi": 5,
+    "Gràcia": 6,
+    "Horta-Guinardó": 7,
+    "Nou Barris": 8,
+    "Sant Andreu": 9,
+    "Sant Martí": 10
+}
 
 # Cargar el archivo JSON con los datos
 filename = "./data/data2.json"
@@ -57,7 +69,6 @@ for product_data in data:
     pattern_door = r"(?i)(?<!\w)(?:[.,])?\s*(?:puerta(?:\s+a\s+distancia)?|mando|puerta\s+de\s+acceso\s+es\s+automática|motor|motorizada)(?:\s+(?:basculante|de acceso|mecanizada|automática|a distancia))?\b"
     pattern_floor = r"(?i)\b(?:planta\s*-?\s*(?:primera|segunda|tercera|cuarta|quinta|\d+)|primera\s*planta|segunda\s*planta|tercera\s*planta|cuarta\s*planta|quinta\s*planta|semisótano|sotano|sótano\s*-?\s*\d+|sótano\s*uno|sótano\s*dos|sótano|única\s*planta\s*sótano)\b"
     pattern_coche = r"(?i)\bcoche\s*(pequeño|mediano|grande)\b"
-    pattern_gastos = r"(?i)\bGastos de impuestos de transmisiones patrimoniales, aranceles, notariales, registrales a cargo de la parte (compradora|vendedora)\b"
     pattern_columnas = r"(?i)\b(?:columnas\s*laterales|entre\s*columnas|dos\s*columnas\s*laterales|dos\s*columnas|tres\s*columnas|protegidas\s*por\s*columnas|protegidas\s*entre\s*columnas|pocas\s*columnas|columna)\b"
     pattern_no_columnas = r"(?i)\b(?:no\s*tiene\s*columnas|sin\s*columnas|sin\s*columna)\b"
     pattern_ascensor = r"(?i)\bascensores?\b"
@@ -76,7 +87,7 @@ for product_data in data:
     # Buscar si hay ascensor
     matches_ascensor = re.findall(pattern_ascensor, desc)
     matches_noascensor = re.findall(pattern_sin_ascensor, desc)
-    atributo_ascensor = "Si" if matches_ascensor else "No" if matches_noascensor else "No info"
+    atributo_ascensor = "Si" if matches_ascensor else "No" if matches_noascensor else "None"
     if matches_ascensor:
         product_data["Ascensor"] = atributo_ascensor
 
@@ -84,95 +95,57 @@ for product_data in data:
     # Buscar si hay o no columnas
     matches = re.findall(pattern_columnas, desc)
     matches_no_columnas = re.findall(pattern_no_columnas, desc)
-    atributo_columnas = "Si" if matches else "No" if matches_no_columnas else "No info"
+    atributo_columnas = "Si" if matches else "No" if matches_no_columnas else "None"
     if atributo_columnas:
         product_data["Columnas"] = atributo_columnas   
-
-
-    # Buscar si hay gastos a cargo de comprador o vendedor
-    gastos_matches = re.findall(pattern_gastos, desc)
-    if gastos_matches:
-        gasto = gastos_matches[0]
-        product_data["Gastos a cargo de"] = gasto
 
     # Buscar el tamaño del coche
     size_car = re.findall(pattern_coche, desc)
     size_low = [tamano.lower() for tamano in size_car]
     if size_low:
         size = size_low[0]
-        product_data["Tipo coche"] = size
+        product_data["Tipo plaza"] = size
+    else:
+        product_data["Tipo plaza"] = "None"
 
     # Buscar coincidencias de la calle
     matches_street = re.findall(pattern_street, product_data["title"])
     if matches_street:
         street_name = matches_street[0][1]
+    else:
+        street_name = "None"
 
     # Buscar y capturar el tipo de puerta
     description = re.findall(pattern_door, desc)
     if description:
         door = description[0]
         product_data["Puerta"] = "automática"
+    else:
+        product_data["Puerta"] = "None"
 
     # Buscar y capturar la planta
     floor = re.findall(pattern_floor, desc)
     if floor:
         floor_info = floor[0]
         product_data["Planta"] = floor_info
+    else:
+        product_data["Planta"] = "None"
 
-    def extract_measures_with_nlp(text):
-        # Cargar el modelo de lenguaje en español de spaCy
-        nlp = spacy.load('es_core_news_sm')
 
-        # Procesar el texto con spaCy
-        doc = nlp(text)
-
-        # Patrones para buscar medidas en el texto
-        patterns = [
-            r"largo:\s+(\d+\.\d+)\s+ancho:\s+(\d+\.\d+)",
-            r"ancho\s+(\d+\,\d+)\s+largo\s+(\d+\,\d+)",
-            r"(\d+\,\d+)\s+ANCHO.*?(\d+\,\d+)\s+LARGO",
-            r"(?:(\d+\.\d+)m\s*x\s*(\d+\.\d+)m)",
-            r"(\d+\.\d+)\s*x\s*(\d+\.\d+)",
-            r"(\d+(?:,\d+)?) m por (\d+(?:,\d+)?) m",
-            r"(\d+(?:,\d+)?)m de largo x (\d+(?:,\d+)?)m de ancho",
-            r"(\d+(?:,\d+)?)\s*x\s*(\d+(?:,\d+)?)",
-            r"(\d+(?:\.\d+)?)\s*m\.? ancho x (\d+(?:\.\d+)?)\s*m\.? fondo",
-            r"(\d+(?:,\d+)?)\s*X\s*(\d+(?:,\d+)?)",
-            r"(\d+(?:\.\d+)?)\s*de\s*largo\s*y\s*(\d+(?:\.\d+)?)\s*de\s*ancho",
-            r"(\d+(?:,\d+)?)m \(columna\) x (\d+(?:,\d+)?)m"
-            r"\((\d+(?:\.\d+)?)mt de ancho por (\d+(?:\.\d+)?)mt de ancho\)",
-            r"(\d+(?:,\d+)?) metros de ancho por (\d+(?:,\d+)?) metros de largo",
-            r"(\d+(?:\.\d+)?)m largo x (\d+(?:\.\d+)?)m ancho",
-            r"(\d+(?:,\d+)?) m de ancho por (\d+(?:,\d+)?) m de largo",
-            r"(\d+(?:\.\d+)?) mts de profundidad;\s*(\d+(?:,\d+)?) mts de ancho",
-            r"anchura después de la columna: (\d+(?:,\d+)?) m\. Longitud (\d+(?:,\d+)?) m\."
-        ]
-
-        # Buscar patrones en el texto y extraer medidas
-        measures = []
-        for pattern in patterns:
-            matches = re.findall(pattern, text)
-            if matches:
-                measures.extend(matches[0])
-                break
-        
-        return measures
-
-    measures = extract_measures_with_nlp(desc)
-    if measures:
-        product_data["Medidas"] = measures
+    # Obtener el número de distrito correspondiente al nombre del distrito
+    districte_num = distritos_barcelona.get(districte, None)
 
     # Agregar barri, districte y ciutat dentro de la variable 'address'
     address = {
         "Calle": street_name,
         "Barrio": barri,
-        "Distrito": districte,
+        "Distrito": f"{districte}, {districte_num}",  
         "Ciudad": ciutat
     }
    
     # Actualizar la dirección en el producto_data
     product_data['Address'] = address
-    product_data['Description'] = desc
+    product_data.pop('link', None)
 
     # Agregar los datos de los productos de la página actual a la lista general
     all_product_data.append(product_data)
