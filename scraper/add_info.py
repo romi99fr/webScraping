@@ -16,18 +16,18 @@ all_product_data = []
 distritos_barcelona = {
     "Ciutat Vella": 1,
     "Eixample": 2,
-    "Sants-Montjuïc": 3,
+    "Sants - Montjuïc": 3,
     "Les Corts": 4,
     "Sarrià-Sant Gervasi": 5,
     "Gràcia": 6,
-    "Horta-Guinardó": 7,
+    "Horta - Guinardó": 7,
     "Nou Barris": 8,
     "Sant Andreu": 9,
     "Sant Martí": 10
 }
 
 # Cargar el archivo JSON con los datos
-filename = "./data/data2.json"
+filename = "./data/data3.json"
 with open(filename, mode='r', encoding='utf-8') as file:
     data = json.load(file)
 
@@ -132,14 +132,20 @@ for product_data in data:
         product_data["Planta"] = "None"
 
 
-    # Obtener el número de distrito correspondiente al nombre del distrito
-    districte_num = distritos_barcelona.get(districte, None)
+    # Clean up the 'districte' variable and convert it to lowercase for case-insensitive matching
+    districte_cleaned = districte.replace("-", "").replace(" ", "").strip().lower()
+
+    # Clean up the keys in the distritos_barcelona dictionary to match the cleaned and lowercase version
+    distritos_barcelona_cleaned = {k.replace("-", "").replace(" ", "").lower(): v for k, v in distritos_barcelona.items()}
+
+    # Obtener el número de distrito correspondiente al nombre del distrito (case-insensitive)
+    districte_num = distritos_barcelona_cleaned.get(districte_cleaned, "None")
 
     # Agregar barri, districte y ciutat dentro de la variable 'address'
     address = {
         "Calle": street_name,
         "Barrio": barri,
-        "Distrito": f"{districte}, {districte_num}",  
+        "Distrito": f"{districte}, {districte_num}",
         "Ciudad": ciutat
     }
    

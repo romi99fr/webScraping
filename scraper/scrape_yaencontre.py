@@ -63,7 +63,7 @@ for page in range(1, total_pages + 1):
             break
 
 # Guardar los datos en un archivo JSON
-filename = "./data/data2.json"
+filename = "./data/data3.json"
 with open(filename, mode='w', encoding='utf-8') as file:
     json.dump(all_product_data, file, ensure_ascii=False)
 
