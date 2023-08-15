@@ -1,25 +1,31 @@
-from pyspark.sql import SparkSession
+import subprocess
+import pandas as pd
 
-# Crear una sesión de Spark
-spark = SparkSession.builder.appName("HDFSFileRead").getOrCreate()
+# Lista de archivos CSV en HDFS
+csv_files = [
+    "webScraping/Adreces_per_secció_censal.csv",
+    "webScraping/Infraestructures_Inventari_Reserves.csv",
+    "webScraping/Taula_mapa_scensal.csv",
+    "webScraping/renda_neta_mitjana_per_persona.csv"
+]
 
-# Rutas de los archivos en HDFS
-adreces_csv = "hdfs://master:27000/webScraping/Adreces_per_secció_censal.csv"
-infra_csv = "hdfs://master:27000/webScraping/Infraestructures_Inventari_Reserves.csv"
-taula_csv = "hdfs://master:27000/webScraping/Taula_mapa_scensal.csv"
-renda_csv = "hdfs://master:27000/webScraping/renda_neta_mitjana_per_persona.csv"
+# Carpeta local donde se guardarán los archivos descargados
+local_folder = "hdfs_downloads/"
 
-# Leer los archivos CSV desde HDFS
-df_adreces = spark.read.csv(adreces_csv, header=True, inferSchema=True)
-df_infra = spark.read.csv(infra_csv, header=True, inferSchema=True)
-df_taula = spark.read.csv(taula_csv, header=True, inferSchema=True)
-df_renda = spark.read.csv(renda_csv, header=True, inferSchema=True)
+# Crear la carpeta local si no existe
+subprocess.run(["mkdir", "-p", local_folder])
 
-# Mostrar los datos o realizar otras operaciones
-df_adreces.show()
-df_infra.show()
-df_taula.show()
-df_renda.show()
+# Descargar los archivos CSV desde HDFS
+for csv_file in csv_files:
+    subprocess.run(["hadoop-2.7.4/bin/hdfs", "dfs", "-get", csv_file, local_folder])
 
-# Detener la sesión de Spark
-spark.stop()
+# Mostrar el contenido de los archivos CSV descargados
+for csv_file in csv_files:
+    local_path = local_folder + csv_file.split("/")[-1]  # Obtener solo el nombre del archivo
+    print(f"Contenido de {local_path}:")
+    
+    df = pd.read_csv(local_path)
+    print(df)
+    print("-" * 50)
+
+print("Fin del proceso.")
