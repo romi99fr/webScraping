@@ -1,5 +1,6 @@
 import os
 import requests
+import subprocess
 
 # URL of the website containing the CSV file
 url = "https://opendata-ajuntament.barcelona.cat/data/dataset/5411c8e1-1ede-47d6-92ce-2035141d8721/resource/f791aeba-2570-4e37-b957-c6036a0c28f7/download"
@@ -25,3 +26,8 @@ if response.status_code == 200:
 else:
     print(f"Failed to download CSV file. Status code: {response.status_code}")
 
+
+hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
+put_command = [hadoop_bin, "dfs", "-put", "../csv_data/renda_neta_mitjana_per_persona.csv", "webScraping/renda_neta_mitjana_per_persona.csv"]
+
+subprocess.run(put_command, check=True)
