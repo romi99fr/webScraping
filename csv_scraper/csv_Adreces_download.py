@@ -8,7 +8,7 @@ url = "https://opendata-ajuntament.barcelona.cat/data/dataset/620d9bd8-54e6-4d7a
 
 # Specify the local directory and file name to save the downloaded CSV
 local_directory = "C:\\TFM\\webScraping\\csv_data"
-local_file_name = "Adreces per secció censal.csv"
+local_file_name = "Adreces_per_secció_censal.csv"
 local_file_path = os.path.join(local_directory, local_file_name)
 
 # Create the local directory if it doesn't exist
