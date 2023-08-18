@@ -3,12 +3,12 @@ import requests
 import subprocess
 
 # URL of the website containing the CSV file
-url = "https://opendata-ajuntament.barcelona.cat/data/dataset/620d9bd8-54e6-4d7a-88b6-4a54c40c2dc6/resource/96b2b713-7fe0-4e79-a842-0a9b2e7bffe3/download"
+url = "https://opendata-ajuntament.barcelona.cat/data/dataset/b7ba32eb-806e-4c9c-b0b1-9bab387fe501/resource/540e48d8-c432-43df-b3ba-a0cf009b90ef/download"
 
 
 # Specify the local directory and file name to save the downloaded CSV
 local_directory = "C:\\TFM\\webScraping\\csv_data"
-local_file_name = "Adreces_per_secció_censal.csv"
+local_file_name = "Densitat.csv"
 local_file_path = os.path.join(local_directory, local_file_name)
 
 # Create the local directory if it doesn't exist
@@ -32,8 +32,8 @@ subprocess.run(
             "../../hadoop-2.7.4/bin/hdfs",
             "dfs",
             "-put",
-            "../csv_data/'Adreces_per_secció_censal.csv",
-            "webScraping/Adreces_per_secció_censal.csv"
+            "../csv_data/'Densitat.csv",
+            "webScraping/Densitat.csv"
         ],
         check=True
     )
