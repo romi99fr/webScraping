@@ -72,5 +72,9 @@ combined_df.show(truncate=False)
 output_path = "combined.csv"
 combined_df.write.csv(output_path, header=True, mode="overwrite")
 
+hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
+put_command = [hadoop_bin, "dfs", "-put", "combined.csv", "webScraping/final_data.csv"]
+subprocess.run(put_command, check=True)
+
 # Detener la sesión de Spark
 spark.stop()
