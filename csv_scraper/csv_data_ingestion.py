@@ -26,7 +26,7 @@ csv_info = [
     }    
 ]
 
-local_directory = "C:\\TFM\\webScraping\\csv_data"
+local_directory = "../csv_data"
 os.makedirs(local_directory, exist_ok=True)
 
 for csv in csv_info:
