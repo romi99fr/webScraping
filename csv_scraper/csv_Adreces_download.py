@@ -32,7 +32,7 @@ subprocess.run(
             "../../hadoop-2.7.4/bin/hdfs",
             "dfs",
             "-put",
-            "../csv_data/'Adreces_per_secció_censal.csv",
+            "../csv_data/Adreces_per_secció_censal.csv",
             "webScraping/Adreces_per_secció_censal.csv"
         ],
         check=True

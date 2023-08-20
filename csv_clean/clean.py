@@ -12,7 +12,7 @@ csv_files = [
 spark = SparkSession.builder.appName("HDFSFileRead").getOrCreate()
 
 # Carpeta local donde se guardarán los archivos descargados
-local_folder = "../hdfs_from_hdfs/"
+local_folder = "../csv_from_hdfs/"
 
 # Crear la carpeta local si no existe
 subprocess.run(["mkdir", "-p", local_folder])
