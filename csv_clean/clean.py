@@ -1,11 +1,12 @@
 import subprocess
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 
 # Lista de archivos CSV en HDFS
 csv_files = [
     "webScraping/Adreces_per_secció_censal.csv",
     "webScraping/Infraestructures_Inventari_Reserves.csv",
-    "webScraping/Taula_mapa_scensal.csv",
+    "webScraping/Taula_mapa_districte.csv",
     "webScraping/renda_neta_mitjana_per_persona.csv"
 ]
 
@@ -24,7 +25,7 @@ for csv_file in csv_files:
 files = [
     "../csv_from_hdfs/Adreces_per_secció_censal.csv",
     "../csv_from_hdfs/Infraestructures_Inventari_Reserves.csv",
-    "../csv_from_hdfs/Taula_mapa_scensal.csv",
+    "../csv_from_hdfs/Taula_mapa_districte.csv",
     "../csv_from_hdfs/renda_neta_mitjana_per_persona.csv"
 ]
 
@@ -32,14 +33,9 @@ files = [
 columns_to_join = {
     "Adreces_per_secció_censal.csv": ["NOM_CARRER", "DISTRICTE", "SECC_CENS", "BARRI", "DPOSTAL"],
     "Infraestructures_Inventari_Reserves.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Numero_Places", "Desc_Tipus_Estacionament"],
-    "Taula_mapa_scensal.csv": ["SECCIO_CENSAL", "HOMES", "DONES"],
+    "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre"],
     "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"]
 }
-
-# Definir las columnas de join en orden de prioridad
-join_columns = ["Nom_Districte", "Districte"]
-
-combined_df = None
 
 # Procesar y mostrar las columnas para cada archivo CSV
 for csv_file in files:
@@ -51,30 +47,14 @@ for csv_file in files:
         df = spark.read.csv(csv_file, header=True, inferSchema=True)
         df = df.select(*columns)
         df.show(truncate=False)
+        if file_name == "Taula_mapa_districte.csv":
+            # Realizar operación de agregación en el DataFrame de Taula_mapa_districte.csv y pivoteo
+            aggregated_df = df.groupBy("Nom_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
+            pivot_df = aggregated_df.groupBy("Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
 
-        if combined_df is None:
-            combined_df = df
-        else:
-            join_column = None
-            for column in join_columns:
-                if column in combined_df.columns:
-                    join_column = column
-                    break
-            if join_column:
-                combined_df = combined_df.join(df, on=join_column, how="full")
-
-# Mostrar el DataFrame combinado
-print("DataFrame combinado:")
-combined_df.show(truncate=False)
-
-
-# Guardar el DataFrame combinado como archivo CSV
-output_path = "combined.csv"
-combined_df.write.csv(output_path, header=True, mode="overwrite")
-
-hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
-put_command = [hadoop_bin, "dfs", "-put", "combined.csv", "webScraping/final_data.csv"]
-subprocess.run(put_command, check=True)
+            # Mostrar el DataFrame agregado y pivoteado
+            print("DataFrame Tabla clean")
+            pivot_df.show(truncate=False)
 
 # Detener la sesión de Spark
 spark.stop()

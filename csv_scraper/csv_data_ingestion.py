@@ -9,8 +9,8 @@ csv_info = [
         "local_filename": "renda_neta_mitjana_per_persona.csv"
     },
     {
-        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/784cefda-9219-4b61-b5d5-68b5ac453070/resource/d43b851c-65a3-4e9f-9d71-33e91583b32f/download",
-        "local_filename": "Taula_mapa_scensal.csv"
+        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/de5c4f45-24eb-4672-9bc4-f12508a0060a/resource/cd3125e4-f7d3-4217-8f9d-6d7abdad6ab0/download",
+        "local_filename": "Taula_mapa_districte.csv"
     },
     {
         "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/b7ba32eb-806e-4c9c-b0b1-9bab387fe501/resource/540e48d8-c432-43df-b3ba-a0cf009b90ef/download",
