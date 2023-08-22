@@ -91,8 +91,8 @@ for csv_file in files:
         df = df.select(*columns)
         
 
-        if file_name != "Adreces_per_secció_censal.csv":
-            filtered_df = df.select(col("NOM_CARRER"), col("DISTRICTE"))
+        if file_name == "Adreces_per_secció_censal.csv":
+            filtered_df = df.distinct().select(col("NOM_CARRER"), col("DISTRICTE"))
             filtered_df.show(truncate=False)
             modified_dfs[file_name] = filtered_df
 
