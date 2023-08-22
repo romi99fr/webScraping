@@ -42,7 +42,7 @@ for csv in csv_info:
         print(f"CSV file '{local_file_name}' downloaded successfully.")
         
         hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
-        put_command = [hadoop_bin, "dfs", "-put","-f" local_file_path, f"webScraping/{local_file_name}"]
+        put_command = [hadoop_bin, "dfs", "-put","-f",local_file_path, f"webScraping/{local_file_name}"]
         subprocess.run(put_command, check=True)
     else:
         print(f"Failed to download CSV file '{local_file_name}'. Status code: {response.status_code}")
