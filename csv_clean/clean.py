@@ -39,46 +39,7 @@ columns_to_join = {
     "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"]
 }
 
-# Procesar y mostrar las columnas para cada archivo CSV
-import subprocess
-from pyspark.sql import SparkSession
-from pyspark.sql import functions as F
 
-# Lista de archivos CSV en HDFS
-csv_files = [
-    "webScraping/Adreces_per_secció_censal.csv",
-    "webScraping/Infraestructures_Inventari_Reserves.csv",
-    "webScraping/Taula_mapa_districte.csv",
-    "webScraping/renda_neta_mitjana_per_persona.csv"
-]
-
-spark = SparkSession.builder.appName("HDFSFileRead").getOrCreate()
-
-# Carpeta local donde se guardarán los archivos descargados
-local_folder = "../csv_from_hdfs/"
-
-# Crear la carpeta local si no existe
-subprocess.run(["mkdir", "-p", local_folder])
-
-# Descargar los archivos CSV desde HDFS
-for csv_file in csv_files:
-    subprocess.run(["../../hadoop-2.7.4/bin/hdfs", "dfs", "-get", csv_file, local_folder])
-
-files = [
-    "../csv_from_hdfs/Adreces_per_secció_censal.csv",
-    "../csv_from_hdfs/Infraestructures_Inventari_Reserves.csv",
-    "../csv_from_hdfs/Taula_mapa_districte.csv",
-    "../csv_from_hdfs/renda_neta_mitjana_per_persona.csv"
-]
-
-# Definir las columnas a imprimir para cada archivo
-columns_to_join = {
-    "Adreces_per_secció_censal.csv": ["NOM_CARRER", "DISTRICTE", "SECC_CENS", "BARRI", "DPOSTAL"],
-    "Infraestructures_Inventari_Reserves.csv": ["Codi_Districte", "Codi_Barri", "Nom_Barri", "Numero_Places", "Desc_Tipus_Estacionament"],
-    "Taula_mapa_districte.csv": ["Codi_Districte", "Nom_Districte", "Sexe", "Nombre"],
-    "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"]
-}
-# Procesar y mostrar las columnas para cada archivo CSV
 
 modified_dfs = {}
 
@@ -131,7 +92,7 @@ for csv_file in files:
             modified_dfs[file_name] = aggregated_df
 
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
-combined_df.show(truncate=False)
+combined_df.show(100)
 
 # Detener la sesión de Spark
 spark.stop()
