@@ -1,6 +1,7 @@
 import subprocess
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
+from pyspark.sql.functions import col
 
 # Lista de archivos CSV en HDFS
 csv_files = [
@@ -88,6 +89,13 @@ for csv_file in files:
         columns = columns_to_join[file_name]
         df = spark.read.csv(csv_file, header=True, inferSchema=True)
         df = df.select(*columns)
+        
+
+        if file_name != "Adreces_per_secció_censal.csv":
+            filtered_df = df.select(col("NOM_CARRER"), col("DISTRICTE"))
+            filtered_df.show(truncate=False)
+            modified_dfs[file_name] = filtered_df
+
         if file_name != "Taula_mapa_districte.csv" and file_name != "renda_neta_mitjana_per_persona.csv" and file_name != "Infraestructures_Inventari_Reserves.csv":
             df.show(truncate=False)
         if file_name == "Taula_mapa_districte.csv":
