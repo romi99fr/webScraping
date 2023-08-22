@@ -2,6 +2,7 @@ import subprocess
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.functions import col
+from functools import reduce
 
 # Lista de archivos CSV en HDFS
 csv_files = [
@@ -128,9 +129,9 @@ for csv_file in files:
             aggregated_df = filtered_df.groupBy("Codi_Districte", "Nom_Districte").agg(F.sum("Numero_Places").alias("Total_Numero_Places"))
             aggregated_df.show(truncate=False)
             modified_dfs[file_name] = aggregated_df
-        
-        
 
+combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
+combined_df.show(truncate=False)
 
 # Detener la sesión de Spark
 spark.stop()
