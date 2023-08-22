@@ -33,7 +33,7 @@ files = [
 columns_to_join = {
     "Adreces_per_secció_censal.csv": ["NOM_CARRER", "DISTRICTE", "SECC_CENS", "BARRI", "DPOSTAL"],
     "Infraestructures_Inventari_Reserves.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Numero_Places", "Desc_Tipus_Estacionament"],
-    "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre"],
+    "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre","Codi_Districte"],
     "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"]
 }
 
@@ -74,6 +74,6 @@ for csv_file in files:
             # Realizar la agregación por Codi_Districte y Nom_Districte
             aggregated_df = filtered_df.groupBy("Codi_Districte", "Nom_Districte").agg(F.sum("Numero_Places").alias("Total_Numero_Places"))
             aggregated_df.show(truncate=False)
-            
+
 # Detener la sesión de Spark
 spark.stop()
