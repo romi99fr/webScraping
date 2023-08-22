@@ -46,15 +46,34 @@ for csv_file in files:
         columns = columns_to_join[file_name]
         df = spark.read.csv(csv_file, header=True, inferSchema=True)
         df = df.select(*columns)
-        df.show(truncate=False)
+        if file_name != "Taula_mapa_districte.csv" and file_name != "renda_neta_mitjana_per_persona.csv" and file_name != "Infraestructures_Inventari_Reserves.csv":
+            df.show(truncate=False)
         if file_name == "Taula_mapa_districte.csv":
             # Realizar operación de agregación en el DataFrame de Taula_mapa_districte.csv y pivoteo
             aggregated_df = df.groupBy("Nom_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
-            pivot_df = aggregated_df.groupBy("Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
-
+            pivot_df = aggregated_df.groupBy("Codi_Districte","Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
             # Mostrar el DataFrame agregado y pivoteado
             print("DataFrame Tabla clean")
             pivot_df.show(truncate=False)
 
+        if file_name == "renda_neta_mitjana_per_persona.csv":
+            # Realizar la agregación por distrito
+            aggregated_df = df.groupBy("Codi_Districte", "Nom_Districte").agg(F.sum("Import_Euros").alias("Total_Import_Euros"))
+
+            # Mostrar el DataFrame agregado
+            aggregated_df.show(truncate=False)
+
+        if file_name == "Infraestructures_Inventari_Reserves.csv":
+            # Realizar la agregación por Nom_Districte
+            # Filtrar los registros con valores válidos en Codi_Districte y Numero_Places
+            filtered_df = df.filter(df.Codi_Districte.isNotNull() & df.Numero_Places.isNotNull())
+
+            # Convertir Codi_Districte a tipo entero
+            filtered_df = filtered_df.withColumn("Codi_Districte", F.col("Codi_Districte").cast("int"))
+
+            # Realizar la agregación por Codi_Districte y Nom_Districte
+            aggregated_df = filtered_df.groupBy("Codi_Districte", "Nom_Districte").agg(F.sum("Numero_Places").alias("Total_Numero_Places"))
+            aggregated_df.show(truncate=False)
+            
 # Detener la sesión de Spark
 spark.stop()
