@@ -24,7 +24,7 @@ def save_json_to_mongo(file_path):
         json_collection.insert_one(data)
 
 if __name__ == "__main__":
-    csv_file_path = "../csv_data/joined_result.csv"  # Canvia "ruta_del_fitxer.csv" amb la teva ruta
+    csv_file_path = "../csv_data/combined_df_standalone.csv"  # Canvia "ruta_del_fitxer.csv" amb la teva ruta
     json_file_path = "../data/data3.json"  # Canvia "ruta_del_fitxer.json" amb la teva ruta
 
     save_csv_to_mongo(csv_file_path)
