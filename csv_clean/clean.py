@@ -94,5 +94,17 @@ for csv_file in files:
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
 combined_df.show(100)
 
+combined_df_single_partition = combined_df.coalesce(1)
+combined_pandas_df = combined_df_single_partition.toPandas()
+
+# Save the Pandas DataFrame as a single CSV file
+standalone_csv_path = "../csv_data/combined_df_standalone.csv"
+combined_pandas_df.to_csv(standalone_csv_path, index=False)
+
+# Upload the single CSV file to HDFS
+hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
+put_command = [hadoop_bin, "dfs", "-put", "-f", "../csv_data/combined_df.csv", "webScraping/combined_df.csv"]
+subprocess.run(put_command, check=True)
+
 # Detener la sesión de Spark
 spark.stop()
