@@ -5,6 +5,7 @@ import json
 # Establir la connexió amb el servidor MongoDB
 client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["mydatabase"]  # Canvia "mydatabase" pel nom de la teva base de dades
+json_collection = db["json_collection"]
 
 # Crear col·leccions per CSV i JSON
 csv_collection = db["csv_data"]
@@ -17,11 +18,16 @@ def save_csv_to_mongo(file_path):
         for row in csv_reader:
             csv_collection.insert_one(row)
 
-# Desar dades des d'un fitxer JSON a la col·lecció json_data
-def save_json_to_mongo(file_path):
-    with open(file_path, "r") as json_file:
-        data = json.load(json_file)
-        json_collection.insert_one(data)
+def save_json_to_mongo(json_file_path):
+    with open(json_file_path, "r") as json_file:
+        data = json.load(json_file)  # Cargar el archivo JSON en un diccionario
+        
+        # Asegurarse de que data es un diccionario antes de insertarlo
+        if isinstance(data, dict):
+            json_collection.insert_one(data)
+            print("JSON data inserted successfully.")
+        else:
+            print("Error: JSON data is not a valid dictionary.")
 
 if __name__ == "__main__":
     csv_file_path = "../csv_data/combined_df_standalone.csv"  # Canvia "ruta_del_fitxer.csv" amb la teva ruta
