@@ -62,13 +62,15 @@ for csv_file in files:
         if file_name != "Taula_mapa_districte.csv" and file_name != "renda_neta_mitjana_per_persona.csv" and file_name != "Infraestructures_Inventari_Reserves.csv":
             df.show(truncate=False)
         if file_name == "Taula_mapa_districte.csv":
-            # Realizar operación de agregación en el DataFrame de Taula_mapa_districte.csv y pivoteo
             aggregated_df = df.groupBy("Codi_Districte", "Nom_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
             pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
-            # Mostrar el DataFrame agregado y pivoteado
-            print("DataFrame Tabla clean")
-            pivot_df.show(truncate=False)
+             # Agregar una columna 'Personas' sumando los valores de 'Hombre' y 'Mujer'
+            pivot_df = pivot_df.withColumn("Personas", pivot_df["Homes"] + pivot_df["Dones"])
+            pivot_df = pivot_df.drop("Homes", "Dones")
             modified_dfs[file_name] = pivot_df
+            # Mostrar el DataFrame agregado y pivoteado
+            pivot_df.show(truncate=False)
+
 
         if file_name == "renda_neta_mitjana_per_persona.csv":
             # Realizar la agregación por distrito
@@ -107,4 +109,4 @@ put_command = [hadoop_bin, "dfs", "-put", "-f", "../csv_data/combined_df.csv", "
 subprocess.run(put_command, check=True)
 
 # Detener la sesión de Spark
-spark.stop()
+spark.stop() 
