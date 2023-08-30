@@ -23,7 +23,11 @@ csv_info = [
     {
         "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/14f13e0d-3feb-4688-ad63-e1ca9d1e479f/resource/93d8128d-417d-44da-87cb-df7420c40641/download",
         "local_filename": "Infraestructures_Inventari_Reserves.csv"
-    }    
+    },
+    {
+        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/27fa8ffa-4973-40c2-90ab-05d4dcb470f7/resource/d7cf9683-5e2d-4b7b-8602-0bc5073f1dc3/download",
+        "local_filename": "index_motorizacion.csv"
+    } 
 ]
 
 local_directory = "../csv_data"
