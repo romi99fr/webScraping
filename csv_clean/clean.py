@@ -9,7 +9,8 @@ csv_files = [
     "webScraping/Adreces_per_secció_censal.csv",
     "webScraping/Infraestructures_Inventari_Reserves.csv",
     "webScraping/Taula_mapa_districte.csv",
-    "webScraping/renda_neta_mitjana_per_persona.csv"
+    "webScraping/renda_neta_mitjana_per_persona.csv",
+    "webScraping/vehicles_districte.csv"
 ]
 
 spark = SparkSession.builder.appName("HDFSFileRead").getOrCreate()
@@ -28,7 +29,8 @@ files = [
     "../csv_from_hdfs/Adreces_per_secció_censal.csv",
     "../csv_from_hdfs/Infraestructures_Inventari_Reserves.csv",
     "../csv_from_hdfs/Taula_mapa_districte.csv",
-    "../csv_from_hdfs/renda_neta_mitjana_per_persona.csv"
+    "../csv_from_hdfs/renda_neta_mitjana_per_persona.csv",
+    "../csv_from_hdfs/vehicles_districte.csv"
 ]
 
 # Definir las columnas a imprimir para cada archivo
@@ -36,7 +38,9 @@ columns_to_join = {
     "Adreces_per_secció_censal.csv": ["NOM_CARRER", "DISTRICTE", "SECC_CENS", "BARRI", "DPOSTAL"],
     "Infraestructures_Inventari_Reserves.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Numero_Places", "Desc_Tipus_Estacionament"],
     "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre","Codi_Districte"],
-    "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"]
+    "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"],
+    "vehicles_districte.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Tipus_Servei","Total"],
+
 }
 
 
@@ -52,6 +56,12 @@ for csv_file in files:
         df = spark.read.csv(csv_file, header=True, inferSchema=True)
         df = df.select(*columns)
         
+        if file_name == "vehicles_districte.csv":
+            aggregated_df = df.groupBy("Codi_Districte","Nom_Districte","Tipus_Servei").agg(F.sum("Total"))
+            filtered_df = aggregated_df.filter(aggregated_df["Tipus_Servei"] == "Privat")
+            pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Tipus_Servei").agg(F.first("Total")).fillna(0)
+            pivot_df.show(trunccate=False)
+            modified_dfs[file_name] = pivot_df
 
         if file_name == "Adreces_per_secció_censal.csv":
             filtered_df = df.select(col("NOM_CARRER"), col("DISTRICTE").alias("Codi_Districte"))

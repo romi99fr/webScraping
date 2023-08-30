@@ -25,8 +25,8 @@ csv_info = [
         "local_filename": "Infraestructures_Inventari_Reserves.csv"
     },
     {
-        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/27fa8ffa-4973-40c2-90ab-05d4dcb470f7/resource/d7cf9683-5e2d-4b7b-8602-0bc5073f1dc3/download",
-        "local_filename": "index_motorizacion.csv"
+        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/802f9370-9c24-489a-9397-215220959afb/resource/f1c7e6f6-d975-4b7d-b4ce-82dd810300b1/download",
+        "local_filename": "vehicles_districte.csv"
     } 
 ]
 
