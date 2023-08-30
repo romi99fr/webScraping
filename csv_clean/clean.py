@@ -60,7 +60,7 @@ for csv_file in files:
             aggregated_df = df.groupBy("Codi_Districte","Nom_Districte","Tipus_Servei").agg(F.sum("Total").alias("Total"))
             filtered_df = aggregated_df.filter(aggregated_df["Tipus_Servei"] == "Privat")
             pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Tipus_Servei").agg(F.first("Total")).fillna(0)
-            pivot_df.show(trunccate=False)
+            pivot_df.show(truncate=False)
             modified_dfs[file_name] = pivot_df
 
         if file_name == "Adreces_per_secció_censal.csv":
