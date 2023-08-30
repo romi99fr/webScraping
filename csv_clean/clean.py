@@ -94,5 +94,7 @@ for csv_file in files:
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
 combined_df.show(100)
 
+combined_df.write.csv(f"webScraper/joined_result.csv", header=True, mode="overwrite")
+
 # Detener la sesión de Spark
 spark.stop()
