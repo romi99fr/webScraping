@@ -57,8 +57,8 @@ for csv_file in files:
         df = df.select(*columns)
         
         if file_name == "vehicles_districte.csv":
-            aggregated_df = df.groupBy("Codi_Districte","Nom_Districte","Tipus_Servei").agg(F.sum("Total").alias("Total"))
-            filtered_df = aggregated_df.filter(aggregated_df["Tipus_Servei"] == "Privat")
+            filtered_df = df.filter(df["Tipus_Servei"] == "Privat")
+            aggregated_df = filtered_df.groupBy("Codi_Districte","Nom_Districte").agg(F.sum("Total").alias("Total"))
             pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Tipus_Servei").agg(F.first("Total")).fillna(0)
             pivot_df.show(truncate=False)
             modified_dfs[file_name] = pivot_df
