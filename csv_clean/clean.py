@@ -64,8 +64,8 @@ for csv_file in files:
             modified_dfs[file_name] = filtered_df
 
         if file_name == "Taula_mapa_districte.csv":
-            aggregated_df = df.groupBy("Codi_Districte", "Nom_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
-            pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
+            aggregated_df = df.groupBy("Codi_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
+            pivot_df = aggregated_df.groupBy("Codi_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
              # Agregar una columna 'Personas' sumando los valores de 'Hombre' y 'Mujer'
             pivot_df = pivot_df.withColumn("Personas", pivot_df["Homes"] + pivot_df["Dones"])
             pivot_df = pivot_df.drop("Homes", "Dones")
