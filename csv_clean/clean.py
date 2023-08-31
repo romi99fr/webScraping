@@ -27,7 +27,6 @@ for csv_file in csv_files:
 
 files = [
     "../csv_from_hdfs/Adreces_per_secció_censal.csv",
-    "../csv_from_hdfs/Infraestructures_Inventari_Reserves.csv",
     "../csv_from_hdfs/Taula_mapa_districte.csv",
     "../csv_from_hdfs/renda_neta_mitjana_per_persona.csv",
     "../csv_from_hdfs/vehicles_districte.csv"
@@ -36,7 +35,6 @@ files = [
 # Definir las columnas a imprimir para cada archivo
 columns_to_join = {
     "Adreces_per_secció_censal.csv": ["NOM_CARRER", "DISTRICTE", "SECC_CENS", "BARRI", "DPOSTAL"],
-    "Infraestructures_Inventari_Reserves.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Numero_Places", "Desc_Tipus_Estacionament"],
     "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre","Codi_Districte"],
     "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"],
     "vehicles_districte.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Tipus_Servei","Total"],
@@ -83,21 +81,8 @@ for csv_file in files:
             aggregated_df.show(truncate=False)
             modified_dfs[file_name] = aggregated_df
 
-        if file_name == "Infraestructures_Inventari_Reserves.csv":
-            # Realizar la agregación por Nom_Districte
-            # Filtrar los registros con valores válidos en Codi_Districte y Numero_Places
-            filtered_df = df.filter(df.Codi_Districte.isNotNull() & df.Numero_Places.isNotNull())
-
-            # Convertir Codi_Districte a tipo entero
-            filtered_df = filtered_df.withColumn("Codi_Districte", F.col("Codi_Districte").cast("int"))
-
-            # Realizar la agregación por Codi_Districte y Nom_Districte
-            aggregated_df = filtered_df.groupBy("Codi_Districte").agg(F.sum("Numero_Places").alias("Total_Numero_Places"))
-            aggregated_df.show(truncate=False)
-            modified_dfs[file_name] = aggregated_df
-
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
-column_order = ['Codi_Districte', 'Nom_Districte', 'Nom_Carrer', 'Total_Numero_Places', 'Personas', 'Total_Import_Euros', 'Vehicles']
+column_order = ['Codi_Districte', 'Nom_Districte', 'Nom_Carrer', 'Personas', 'Total_Import_Euros', 'Vehicles']
 combined_df = combined_df[column_order]
 
 combined_df.show(100)
