@@ -21,10 +21,6 @@ csv_info = [
         "local_filename": "Adreces_per_secció_censal.csv"
     },
     {
-        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/14f13e0d-3feb-4688-ad63-e1ca9d1e479f/resource/93d8128d-417d-44da-87cb-df7420c40641/download",
-        "local_filename": "Infraestructures_Inventari_Reserves.csv"
-    },
-    {
         "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/802f9370-9c24-489a-9397-215220959afb/resource/f1c7e6f6-d975-4b7d-b4ce-82dd810300b1/download",
         "local_filename": "vehicles_districte.csv"
     } 
