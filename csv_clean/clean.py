@@ -65,8 +65,6 @@ for csv_file in files:
             filtered_df.show(truncate=False)
             modified_dfs[file_name] = filtered_df
 
-        if file_name != "Taula_mapa_districte.csv" and file_name != "renda_neta_mitjana_per_persona.csv" and file_name != "Infraestructures_Inventari_Reserves.csv":
-            df.show(truncate=False)
         if file_name == "Taula_mapa_districte.csv":
             aggregated_df = df.groupBy("Codi_Districte", "Nom_Districte", "Sexe").agg(F.sum("Nombre").alias("Total"))
             pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").pivot("Sexe").agg(F.first("Total")).fillna(0)
@@ -99,6 +97,9 @@ for csv_file in files:
             modified_dfs[file_name] = aggregated_df
 
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
+column_order = ['Codi_Districte', 'Nom_Districte', 'Nom_Carrer', 'Total_Numero_Places', 'Personas', 'Total_Import_Euros', 'Vehicles']
+combined_df = combined_df[column_order]
+
 combined_df.show(100)
 
 combined_df_single_partition = combined_df.coalesce(1)
