@@ -40,10 +40,7 @@ columns_to_join = {
     "Taula_mapa_districte.csv": ["Nom_Districte", "Sexe", "Nombre","Codi_Districte"],
     "renda_neta_mitjana_per_persona.csv": ["Any", "Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Import_Euros"],
     "vehicles_districte.csv": ["Codi_Districte", "Nom_Districte", "Codi_Barri", "Nom_Barri", "Seccio_Censal", "Tipus_Servei","Total"],
-
 }
-
-
 
 modified_dfs = {}
 
@@ -51,7 +48,6 @@ for csv_file in files:
     file_name = csv_file.split("/")[-1]
     if file_name in columns_to_join:
         print(f"Fuente CSV {file_name}:")
-        print(", ".join(columns_to_join[file_name]))
         columns = columns_to_join[file_name]
         df = spark.read.csv(csv_file, header=True, inferSchema=True)
         df = df.select(*columns)
@@ -59,7 +55,7 @@ for csv_file in files:
         if file_name == "vehicles_districte.csv":
             filtered_df = df.filter(df["Tipus_Servei"] == "Privat")
             aggregated_df = filtered_df.groupBy("Codi_Districte","Nom_Districte").agg(F.sum("Total").alias("Total")).fillna(0)
-            pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").agg(F.first("Total")).fillna(0)
+            pivot_df = aggregated_df.groupBy("Codi_Districte", "Nom_Districte").agg(F.first("Total").alias("Vehicles")).fillna(0)
             pivot_df.show(truncate=False)
             modified_dfs[file_name] = pivot_df
 
@@ -80,7 +76,6 @@ for csv_file in files:
             modified_dfs[file_name] = pivot_df
             # Mostrar el DataFrame agregado y pivoteado
             pivot_df.show(truncate=False)
-
 
         if file_name == "renda_neta_mitjana_per_persona.csv":
             # Realizar la agregación por distrito
@@ -110,7 +105,7 @@ combined_df_single_partition = combined_df.coalesce(1)
 combined_pandas_df = combined_df_single_partition.toPandas()
 
 # Save the Pandas DataFrame as a single CSV file
-standalone_csv_path = "../csv_data/combined_df_standalone.csv"
+standalone_csv_path = "../csv_data/combined_df.csv"
 combined_pandas_df.to_csv(standalone_csv_path, index=False)
 
 # Upload the single CSV file to HDFS
