@@ -4,7 +4,6 @@ import json
 csv_file = "../csv_data/combined_df.csv"
 csv_df = pd.read_csv(csv_file)
 
-
 with open("../data/data.json") as json_file:
     json_data = json.load(json_file)
     json_data_cleaned = []
@@ -38,6 +37,11 @@ json_df = pd.DataFrame(json_data_cleaned)
 
 print(json_df)
 
+<<<<<<< HEAD
 # Guardar el resultado en un nuevo archivo JSON
 json_df.to_json('../data/resultado_join.json', orient='records', lines=True, force_ascii=False)
 
+=======
+# Guardar el resultado en un nuevo archivo CSV
+json_df.to_json('../data/resultado_join.json', orient='records', lines=True, force_ascii=False)
+>>>>>>> 33b74a3385986e53df6d41e905df61c32b049292

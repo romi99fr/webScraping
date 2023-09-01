@@ -14,10 +14,17 @@ def save_json_to_mongo(json_file_path):
             try:
                 # Carga cada línea como un objeto JSON
                 json_data = json.loads(line)
+<<<<<<< HEAD
             
                 # Inserta el objeto JSON en la colección
                 json_collection.insert_one(json_data)
             
+=======
+
+                # Inserta el objeto JSON en la colección
+                json_collection.insert_one(json_data)
+
+>>>>>>> 33b74a3385986e53df6d41e905df61c32b049292
             except json.JSONDecodeError:
                 print("Error de decodificación JSON en la línea:", line)
     print(json_collection)
@@ -30,3 +37,4 @@ if __name__ == "__main__":
     save_json_to_mongo(json_file_path)
 
     print("Dades desades a MongoDB amb èxit.")
+
