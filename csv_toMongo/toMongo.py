@@ -8,31 +8,28 @@ db = client["db"]
 json_collection = db["json_collection"]
 
 def save_json_to_mongo(json_file_path):
+    # Lista para almacenar los objetos JSON
+    json_list = []
+
     # Abre el archivo JSON y procesa línea por línea
     with open(json_file_path, "r") as json_file:
         for line in json_file:
             try:
-                # Carga cada línea como un objeto JSON
+                # Carga cada línea como un objeto JSON y agrégala a la lista
                 json_data = json.loads(line)
-<<<<<<< HEAD
-            
-                # Inserta el objeto JSON en la colección
-                json_collection.insert_one(json_data)
-            
-=======
+                json_list.append(json_data)
 
-                # Inserta el objeto JSON en la colección
-                json_collection.insert_one(json_data)
-
->>>>>>> 33b74a3385986e53df6d41e905df61c32b049292
             except json.JSONDecodeError:
                 print("Error de decodificación JSON en la línea:", line)
-    print(json_collection)
-    print("Datos JSON insertados en MongoDB exitosamente.")
+
+    # Inserta la lista de objetos JSON en la colección
+    if json_list:
+        json_collection.insert_many(json_list)
+
 
 
 if __name__ == "__main__":
-    json_file_path = "../data/resultado_join.json"  # Canvia "ruta_del_fitxer.json" amb la teva ruta
+    json_file_path = "../data/resultado_join.json"
 
     save_json_to_mongo(json_file_path)
 

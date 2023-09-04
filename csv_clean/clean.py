@@ -3,6 +3,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.functions import col
 from functools import reduce
+from pyspark.sql.functions import avg
 
 # Lista de archivos CSV en HDFS
 csv_files = [
@@ -74,15 +75,13 @@ for csv_file in files:
             pivot_df.show(truncate=False)
 
         if file_name == "renda_neta_mitjana_per_persona.csv":
-            # Realizar la agregación por distrito
-            aggregated_df = df.groupBy("Codi_Districte").agg(F.sum("Import_Euros").alias("Total_Import_Euros"))
-
-            # Mostrar el DataFrame agregado
-            aggregated_df.show(truncate=False)
-            modified_dfs[file_name] = aggregated_df
+            # Realizar la media  por distrito
+            promedio_distrito = df.groupBy("Codi_Districte").agg(avg("Import_Euros").alias("Promedio_Import_Euros"))
+            promedio_distrito.show(truncate=False)
+            modified_dfs[file_name] = promedio_distrito
 
 combined_df = reduce(lambda df1, df2: df1.join(df2, on="Codi_Districte", how="inner"), modified_dfs.values())
-column_order = ['Codi_Districte', 'Nom_Districte', 'Nom_Carrer', 'Personas', 'Total_Import_Euros', 'Vehicles']
+column_order = ['Codi_Districte', 'Nom_Districte', 'Nom_Carrer', 'Personas', 'Promedio_Import_Euros', 'Vehicles']
 combined_df = combined_df[column_order]
 
 combined_df.show(100)

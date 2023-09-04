@@ -28,7 +28,7 @@ with open("../data/data.json") as json_file:
                 'Ciudad': address['Ciudad'],
                 # Agregando columnas del CSV
                 'Personas': matching_row['Personas'].values[0],
-                'Total_Import_Euros': matching_row['Total_Import_Euros'].values[0],
+                'Promedio_Euros': matching_row['Promedio_Import_Euros'].values[0],
                 'Vehicles': matching_row['Vehicles'].values[0],
             })
 
@@ -37,11 +37,9 @@ json_df = pd.DataFrame(json_data_cleaned)
 
 print(json_df)
 
-<<<<<<< HEAD
 # Guardar el resultado en un nuevo archivo JSON
 json_df.to_json('../data/resultado_join.json', orient='records', lines=True, force_ascii=False)
 
-=======
 # Guardar el resultado en un nuevo archivo CSV
 json_df.to_json('../data/resultado_join.json', orient='records', lines=True, force_ascii=False)
->>>>>>> 33b74a3385986e53df6d41e905df61c32b049292
+
