@@ -3,6 +3,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.functions import col,avg,when,round
 from functools import reduce
+from pyspark.sql.functions import avg
 
 def initialize_spark_session():
     return SparkSession.builder.appName("HDFSFileRead").getOrCreate()
@@ -150,3 +151,8 @@ def main():
 if __name__ == "__main__":
     main()
 
+<<<<<<< HEAD
+=======
+# Detener la sesión de Spark
+spark.stop() 
+>>>>>>> 054eea3e13be33130ebfeff4da225a0fb8e62338
