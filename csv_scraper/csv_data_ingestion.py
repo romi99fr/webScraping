@@ -13,36 +13,63 @@ csv_info = [
         "local_filename": "Taula_mapa_districte.csv"
     },
     {
-        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/b7ba32eb-806e-4c9c-b0b1-9bab387fe501/resource/540e48d8-c432-43df-b3ba-a0cf009b90ef/download",
-        "local_filename": "Densitat.csv"
-    },
-    {
-        "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/620d9bd8-54e6-4d7a-88b6-4a54c40c2dc6/resource/96b2b713-7fe0-4e79-a842-0a9b2e7bffe3/download",
-        "local_filename": "Adreces_per_secció_censal.csv"
-    },
-    {
         "url": "https://opendata-ajuntament.barcelona.cat/data/dataset/802f9370-9c24-489a-9397-215220959afb/resource/f1c7e6f6-d975-4b7d-b4ce-82dd810300b1/download",
         "local_filename": "vehicles_districte.csv"
-    } 
+    },
+    {
+        "local_path": "../csv_data/atur.csv",
+        "local_filename": "atur.csv"
+    },
+    {
+        "local_path": "../csv_data/m2.csv",
+        "local_filename": "m2.csv"
+    },
+    {
+        "local_path": "../csv_data/allotjament_turistic.csv",
+        "local_filename": "allotjament_turistic.csv"
+    },
+    {
+        "local_path": "../csv_data/promedio_ventas.csv",
+        "local_filename": "promedio_ventas.csv"
+    },
+    {
+        "local_path": "../csv_data/seguretat.csv",
+        "local_filename": "seguretat.csv"
+    }
 ]
 
 local_directory = "../csv_data"
 os.makedirs(local_directory, exist_ok=True)
 
-for csv in csv_info:
-    url = csv["url"]
-    local_file_name = csv["local_filename"]
-    local_file_path = os.path.join(local_directory, local_file_name)
-
+def download_csv(url, local_file_path):
     response = requests.get(url)
-
     if response.status_code == 200:
         with open(local_file_path, "wb") as file:
             file.write(response.content)
-        print(f"CSV file '{local_file_name}' downloaded successfully.")
-        
-        hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
-        put_command = [hadoop_bin, "dfs", "-put","-f",local_file_path, f"webScraping/{local_file_name}"]
-        subprocess.run(put_command, check=True)
+        print(f"CSV file '{local_file_path}' downloaded successfully.")
     else:
-        print(f"Failed to download CSV file '{local_file_name}'. Status code: {response.status_code}")
+        print(f"Failed to download CSV file from '{url}'. Status code: {response.status_code}")
+
+def upload_to_hdfs(local_file_path, hdfs_directory):
+    hadoop_bin = "../../hadoop-2.7.4/bin/hdfs"
+    put_command = [hadoop_bin, "dfs", "-put", "-f", local_file_path, hdfs_directory]
+    subprocess.run(put_command, check=True)
+    print(f"Uploaded '{local_file_path}' to HDFS directory '{hdfs_directory}'.")
+
+for csv in csv_info:
+    if "url" in csv:
+        url = csv["url"]
+        local_file_name = csv["local_filename"]
+        local_file_path = os.path.join(local_directory, local_file_name)
+        hdfs_directory = f"webScraping-opti/{local_file_name}"
+
+        download_csv(url, local_file_path)
+        upload_to_hdfs(local_file_path, hdfs_directory)
+    elif "local_path" in csv:
+        local_file_path = csv["local_path"]
+        local_file_name = csv["local_filename"]
+        hdfs_directory = f"webScraping-opti/{local_file_name}"
+
+        upload_to_hdfs(local_file_path, hdfs_directory)
+
+

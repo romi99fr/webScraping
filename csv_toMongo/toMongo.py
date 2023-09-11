@@ -1,33 +1,41 @@
 import pymongo
-import csv
 import json
 
-# Establir la connexió amb el servidor MongoDB
-client = pymongo.MongoClient("mongodb://localhost:27017/")
-db = client["db"]
-json_collection = db["json_collection"]
+def connect_to_mongodb(database_name, collection_name):
+    # Establecer la conexión con el servidor MongoDB
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    db = client[database_name]
+    collection = db[collection_name]
+    return collection
 
-def save_json_to_mongo(json_file_path):
-    # Abre el archivo JSON y procesa línea por línea
+def read_json_file(json_file_path):
+    json_list = []
+
     with open(json_file_path, "r") as json_file:
         for line in json_file:
             try:
-                # Carga cada línea como un objeto JSON
                 json_data = json.loads(line)
-
-                # Inserta el objeto JSON en la colección
-                json_collection.insert_one(json_data)
+                json_list.append(json_data)
 
             except json.JSONDecodeError:
                 print("Error de decodificación JSON en la línea:", line)
-    print(json_collection)
-    print("Datos JSON insertados en MongoDB exitosamente.")
 
+    return json_list
+
+def save_json_to_mongo(collection, json_list):
+    if json_list:
+        collection.insert_many(json_list)
+
+def main():
+    database_name = "db"
+    collection_name = "webScraping"
+    json_file_path = "../data/resultado_join.json"
+
+    collection = connect_to_mongodb(database_name, collection_name)
+    json_list = read_json_file(json_file_path)
+    save_json_to_mongo(collection, json_list)
+
+    print("Datos almacenados en MongoDB con éxito.")
 
 if __name__ == "__main__":
-    json_file_path = "../data/resultado_join.json"  # Canvia "ruta_del_fitxer.json" amb la teva ruta
-
-    save_json_to_mongo(json_file_path)
-
-    print("Dades desades a MongoDB amb èxit.")
-
+    main()
